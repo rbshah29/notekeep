@@ -18,7 +18,7 @@ This is a simple Notepad application built with Vue.js and Node.js, using MongoD
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/notepad.git
+git clone https://github.com/rbshah29/notepad.git
 cd notepad
 ```
 
