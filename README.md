@@ -1,75 +1,100 @@
-# Nuxt Minimal Starter
+# Notepad Application
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is a simple Notepad application built with Vue.js and Node.js, using MongoDB as the database. The application supports creating, reading, and deleting notes, with dark mode support.
+
+## Features
+
+- Create, read, and delete notes
+- Dark mode support
+- Search notes
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- MongoDB Atlas account
 
 ## Setup
 
-Make sure to install dependencies:
+### 1. Clone the repository
 
 ```bash
-# npm
+git clone https://github.com/your-username/notepad.git
+cd notepad
+```
+
+### 2. Install dependencies
+
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+### 3. Configure MongoDB
 
-Start the development server on `http://localhost:3000`:
+Create a `.env` file in the root directory and add your MongoDB connection string:
+
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
+```
+
+### 4. Run the application
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+The application will be available at `http://localhost:3000`.
 
-Build the application for production:
+## Project Structure
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+```
+notepad/
+├── components/
+│   ├── AddNoteModal.vue
+│   └── NoteCard.vue
+├── pages/
+│   └── index.vue
+├── server/
+│   ├── api/
+│   │   └── notes.js
+│   └── utils/
+│       └── mongodb.js
+├── .env
+├── package.json
+└── README.md
 ```
 
-Locally preview production build:
+## API Endpoints
 
-```bash
-# npm
-npm run preview
+### GET /api/notes
 
-# pnpm
-pnpm preview
+Fetch all notes.
 
-# yarn
-yarn preview
+### POST /api/notes
 
-# bun
-bun run preview
-```
+Add a new note.
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+### DELETE /api/notes
+
+Delete a note by ID. Requires `id` query parameter.
+
+## Usage
+
+### Adding a Note
+
+1. Click the "+" button to open the Add Note modal.
+2. Enter the title and content of the note.
+3. Click "Save" to add the note.
+
+### Deleting a Note
+
+1. Click the delete button on the note card.
+2. The note will be deleted from the database.
+
+### Searching Notes
+
+1. Enter a search query in the search input.
+2. The notes will be filtered based on the query.
+
+## License
+
+This project is licensed under the MIT License.
