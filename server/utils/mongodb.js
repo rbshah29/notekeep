@@ -1,6 +1,10 @@
 import { MongoClient } from 'mongodb';
 
-const uri = 'mongodb+srv://rutvikmymovie:mSaq3KlPqa63GhYp@cluster0.96bjh.mongodb.net/?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error('Please add your MongoDB URI to .env');
+}
+
 const client = new MongoClient(uri, {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,

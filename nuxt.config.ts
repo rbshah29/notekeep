@@ -9,6 +9,10 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-
+  nitro: {
+    runtimeConfig: {
+      MONGODB_URI: process.env.MONGODB_URI
+    }
+  },
   compatibilityDate: '2025-01-20',
 })
