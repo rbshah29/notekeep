@@ -1,7 +1,7 @@
 <template>
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center dark:bg-opacity-75">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Add Note</h2>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Take a note....</h2>
         <input v-model="newNote.title" placeholder="Title" class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white">
         <textarea v-model="newNote.content" placeholder="Content" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"></textarea>
         <div class="mt-4 flex justify-end">

@@ -20,6 +20,31 @@ export default defineEventHandler(async (event) => {
         _id: result.insertedId
       };
     }
+    
+    if (method === 'PUT') {
+      const query = getQuery(event);
+      const id = query.id;
+      const body = await readBody(event);
+      
+      if (!id) {
+        throw createError({
+          statusCode: 400,
+          message: 'ID is required for updating'
+        });
+      }
+
+      const result = await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: {
+          title: body.title,
+          content: body.content
+        }}
+      );
+
+      return {
+        success: result.modifiedCount === 1
+      };
+    } 
 
     if (method === 'DELETE') {
       const query = getQuery(event);

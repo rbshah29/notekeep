@@ -19,6 +19,7 @@
           v-for="note in filteredNotes"
           :key="note._id"
           :note="note"
+          @edit-note="editNote"
           @refresh-notes="fetchNotes"
         />
   
@@ -39,6 +40,12 @@
         @refresh-notes="fetchNotes"
         @close-modal="() => (showModal = false)"
       />
+      <EditNoteModal
+        :show="showEditModal"
+        :note="selectedNote"
+        @close="closeEditModal"
+        @refresh-notes="fetchNotes"
+      />
     </div>
 </template>
   
@@ -46,19 +53,24 @@
   <script>
   import NoteCard from '~/components/NoteCard.vue';
   import AddNoteModal from '~/components/AddNoteModal.vue';
+  import EditNoteModal from '~/components/EditNoteModal.vue';
+
   import axios from 'axios';
   
   export default {
-    components: { NoteCard, AddNoteModal },
+    components: { NoteCard, AddNoteModal,  EditNoteModal },
     
     data() {
       return {
         notes: [],
         showModal: false,
+        showEditModal: false,
+        selectedNote: null,
         searchQuery: '',
         loading: false,
         error: null
       };
+
     },
     
     computed: {
@@ -77,7 +89,6 @@
       async fetchNotes() {
         this.loading = true;
         this.error = null;
-        
         try {
           const response = await axios.get('/api/notes');
           this.notes = response.data;
@@ -88,8 +99,18 @@
           this.loading = false;
         }
       },
+      editNote(note) {
+        this.selectedNote = note;
+        this.showEditModal = true;
+      },
+      closeEditModal() {
+        this.showEditModal = false;
+        this.selectedNote = null;
+      }
     },
-    
+
+
+
     mounted() {
       this.fetchNotes();
     },

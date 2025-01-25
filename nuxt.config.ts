@@ -12,7 +12,11 @@ export default defineNuxtConfig({
   nitro: {
     runtimeConfig: {
       MONGODB_URI: process.env.MONGODB_URI
+    },
+    routeRules: {
+      '/**': { cors: true }
     }
+
   },
   compatibilityDate: '2025-01-20',
 })
