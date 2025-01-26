@@ -18,11 +18,18 @@ export default {
   props: ['note'],
   methods: {
     async deleteNote() {
-      try {
-        await axios.delete(`/api/notes?id=${this.note._id}`);
-        this.$emit('refresh-notes');
-      } catch (error) {
-        console.error('Error deleting note:', error);
+      if (confirm('Are you sure you want to delete this note?')) {
+        try {
+          const token = localStorage.getItem('token');
+          await axios.delete(`/api/notes?id=${this.note._id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          this.$emit('refresh-notes');
+        } catch (error) {
+          console.error('Error deleting note:', error);
+        }
       }
     }
   }

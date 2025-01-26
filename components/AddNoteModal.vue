@@ -37,16 +37,28 @@
       };
     },
     methods: {
+
+
       async saveNote() {
         try {
-          await axios.post('/api/notes', this.newNote);
+          const token = localStorage.getItem('token');
+          console.log('Sending note:', this.newNote); // Debug log
+          const response = await axios.post('/api/notes', this.newNote, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log('Response:', response.data); // Debug log
           this.$emit('refresh-notes');
-          this.newNote = { title: '', content: '' };
           this.$emit('close-modal');
+          this.newNote = { title: '', content: '' };
         } catch (error) {
-          console.error('Error adding note:', error);
+          console.error('Full error:', error);
+          this.error = error.response?.data?.message || 'Failed to add note';
         }
       },
+
+
       closeModal() {
         this.$emit('close-modal');
       },

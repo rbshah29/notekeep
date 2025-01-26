@@ -1,22 +1,49 @@
 import { connectToDatabase } from '../utils/mongodb';
 import { ObjectId } from 'mongodb';
 
+// server/api/notes.js - add auth check
+import jwt from 'jsonwebtoken';
+
+const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    return null;
+  }
+};
+
+
 export default defineEventHandler(async (event) => {
+  const token = event.node.req.headers.authorization?.split(' ')[1];
+  const decoded = verifyToken(token);
+  
+  if (!decoded) {
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized'
+    });
+  }
   try {
     const db = await connectToDatabase();
     const collection = db.collection('notekeep');
     const method = event.node.req.method;
 
+    
+    const userId = decoded.userId;
+
     if (method === 'GET') {
-      const notes = await collection.find({}).toArray();
+      const notes = await collection.find({ userId }).toArray();
       return notes;
     }
 
     if (method === 'POST') {
       const body = await readBody(event);
-      const result = await collection.insertOne(body);
+      console.log('Received note data:', body); // Debug log
+      const noteWithUser = { ...body, userId: decoded.userId };
+      console.log('Saving note:', noteWithUser); // Debug log
+      const result = await collection.insertOne(noteWithUser);
       return {
-        ...body,
+        ...noteWithUser,
         _id: result.insertedId
       };
     }
@@ -34,16 +61,14 @@ export default defineEventHandler(async (event) => {
       }
 
       const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
+        { _id: new ObjectId(id), userId },
         { $set: {
           title: body.title,
           content: body.content
         }}
       );
 
-      return {
-        success: result.modifiedCount === 1
-      };
+      return { success: result.modifiedCount === 1 };
     } 
 
     if (method === 'DELETE') {
@@ -58,12 +83,11 @@ export default defineEventHandler(async (event) => {
       }
 
       const result = await collection.deleteOne({ 
-        _id: new ObjectId(id) 
+        _id: new ObjectId(id),
+        userId 
       });
 
-      return {
-        success: result.deletedCount === 1
-      };
+      return { success: result.deletedCount === 1 };
     }
 
     throw createError({
@@ -79,3 +103,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 });
+
+
+    
+

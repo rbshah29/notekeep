@@ -1,9 +1,15 @@
 <template>
+  
     <div class="p-6 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
       <div v-if="error" class="mb-4 p-4 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded">
         {{ error }}
       </div>
-  
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-bold mx-auto">Notekeep</h1>
+        <button @click="logout" class="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+          Logout
+        </button>
+      </div>
       <input
         v-model="searchQuery"
         placeholder="Search notes..."
@@ -50,7 +56,7 @@
 </template>
   
   
-  <script>
+<script>
   import NoteCard from '~/components/NoteCard.vue';
   import AddNoteModal from '~/components/AddNoteModal.vue';
   import EditNoteModal from '~/components/EditNoteModal.vue';
@@ -58,6 +64,7 @@
   import axios from 'axios';
   
   export default {
+    middleware: ['auth'],
     components: { NoteCard, AddNoteModal,  EditNoteModal },
     
     data() {
@@ -86,15 +93,28 @@
     },
     
     methods: {
+      logout() {
+        localStorage.removeItem('token');
+        this.$router.push('/login');
+      },
       async fetchNotes() {
         this.loading = true;
         this.error = null;
         try {
-          const response = await axios.get('/api/notes');
+          const response = await axios.get('/api/notes', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
           this.notes = response.data;
         } catch (error) {
           console.error('Error fetching notes:', error);
-          this.error = 'Failed to load notes. Please try again later.';
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            this.$router.push('/login');
+          } else {
+            this.error = 'Failed to load notes. Please try again later.';
+          }
         } finally {
           this.loading = false;
         }
@@ -115,4 +135,4 @@
       this.fetchNotes();
     },
   };
-  </script>
+</script>

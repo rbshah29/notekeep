@@ -57,11 +57,17 @@ export default {
   methods: {
     async saveEdit() {
       try {
-        await axios.put(`/api/notes?id=${this.note._id}`, this.editedNote);
+        const token = localStorage.getItem('token');
+        await axios.put(`/api/notes?id=${this.note._id}`, this.editedNote, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.$emit('refresh-notes');
-        this.closeModal();
+        this.$emit('close');
       } catch (error) {
         console.error('Error updating note:', error);
+        this.error = error.response?.data?.message || 'Failed to update note';
       }
     },
     closeModal() {
