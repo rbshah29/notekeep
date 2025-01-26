@@ -80,12 +80,14 @@
         :show-modal="showModal"
         @refresh-notes="fetchNotes"
         @close-modal="() => (showModal = false)"
+        @refresh-tags="getUniqueTags"
       />
       <EditNoteModal
         :show="showEditModal"
         :note="selectedNote"
         @close="closeEditModal"
         @refresh-notes="fetchNotes"
+        @refresh-tags="getUniqueTags"
       />
     </div>
 </template>
@@ -164,11 +166,11 @@
             console.error('Error fetching user details:', error);
           }
         },
-        formatDate(date) {
-          return new Date(date).toLocaleDateString();
-        },
+      formatDate(date) {
+        return new Date(date).toLocaleDateString();
+      },
 
-        async getUniqueTags() {
+      async getUniqueTags() {
         try {
           const response = await axios.get('/api/tags', {
             headers: {

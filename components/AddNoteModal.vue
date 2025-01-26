@@ -92,6 +92,7 @@
           });
           this.$emit('refresh-notes');
           this.$emit('close-modal');
+          this.$emit('refresh-tags');
           this.newNote = { title: '', content: '' };
         } catch (error) {
           console.error('Full error:', error);

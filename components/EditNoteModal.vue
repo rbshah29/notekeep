@@ -89,6 +89,7 @@ export default {
           }
         });
         this.$emit('refresh-notes');
+        this.$emit('refresh-tags');
         this.$emit('close');
       } catch (error) {
         console.error('Error updating note:', error);
