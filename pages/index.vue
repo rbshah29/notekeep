@@ -38,6 +38,15 @@
         placeholder="Search notes..."
         class="p-2 w-full border rounded mb-4 dark:bg-gray-700 dark:text-white"
       />
+      <select 
+          v-model="selectedTag"
+          class="p-2 border mb-2 rounded dark:bg-gray-700 dark:text-white"
+        >
+          <option value="">All Tags</option>
+          <option v-for="tag in uniqueTags" :key="tag" :value="tag">
+            {{ tag }}
+          </option>
+        </select>
   
       <div v-if="loading" class="flex justify-center items-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -48,9 +57,12 @@
           v-for="note in filteredNotes"
           :key="note._id"
           :note="note"
+          :uniqueTags="uniqueTags"
+          :noteTags="note.tags"
           @edit-note="editNote"
           @refresh-notes="fetchNotes"
         />
+
   
         <div v-if="filteredNotes.length === 0" class="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
           {{ searchQuery ? 'No notes found matching your search' : 'No notes yet. Create your first note!' }}
@@ -103,28 +115,41 @@
         error: null,
         userName: '',
         userEmail: '',
-        userCreatedAt: ''
+        userCreatedAt: '',
+        selectedTag: '',
+        uniqueTags: []
+
       };
 
     },
     
     computed: {
       filteredNotes() {
-        if (!this.searchQuery) return this.notes;
-        
-        const query = this.searchQuery.toLowerCase();
-        return this.notes.filter(note => 
-          note.title?.toLowerCase().includes(query) ||
-          note.content?.toLowerCase().includes(query)
-        );
+        let filtered = this.notes;
+
+        if (this.searchQuery) {
+          const query = this.searchQuery.toLowerCase();
+          filtered = filtered.filter(note =>
+            note.title?.toLowerCase().includes(query) ||
+            note.content?.toLowerCase().includes(query)
+          );
+        }
+
+        if (this.selectedTag) {
+          filtered = filtered.filter(note => note.tags?.includes(this.selectedTag));
+        }
+
+        return filtered;
       },
     },
+
     
     methods: {
       logout() {
         localStorage.removeItem('token');
         this.$router.push('/login');
       },
+
       async fetchUserDetails() {
           try {
             const token = localStorage.getItem('token');
@@ -143,6 +168,19 @@
           return new Date(date).toLocaleDateString();
         },
 
+        async getUniqueTags() {
+        try {
+          const response = await axios.get('/api/tags', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          this.uniqueTags = response.data;
+        } catch (error) {
+          console.error('Error fetching tags:', error);
+        }
+      },
+      
       async fetchNotes() {
         this.loading = true;
         this.error = null;
@@ -179,6 +217,7 @@
 
     mounted() {
       this.fetchUserDetails();
+      this.getUniqueTags();
       this.fetchNotes();
     },
   };

@@ -20,6 +20,25 @@
         v-model="editedNote.content"
         class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white font-mono min-h-[200px]"
       ></textarea>
+      <div class="mb-4">
+        <label class="block text-gray-700 dark:text-gray-300 mb-2">Tags</label>
+        <input 
+          v-model="newTag" 
+          @keyup.enter="addTag" 
+          placeholder="Add a tag and press Enter" 
+          class="w-full p-2 mb-2 border rounded dark:bg-gray-700 dark:text-white"
+        >
+        <div class="flex flex-wrap">
+          <span 
+            v-for="(tag, index) in editedNote.tags" 
+            :key="index" 
+            class="bg-blue-500 text-white px-2 py-1 rounded mr-2 mb-2"
+          >
+            {{ tag }}
+            <button @click="removeTag(index)" class="ml-1 text-white">&times;</button>
+          </span>
+        </div>
+      </div>
       <div class="mt-4 flex justify-end space-x-2">
         
         <button @click="saveEdit" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
@@ -40,20 +59,26 @@ export default {
     return {
       editedNote: {
         title: '',
-        content: ''
-      }
+        content: '',
+        tags: []
+      },
+      newTag: '',
+      existingTags: []
     };
   },
   watch: {
-    note: {
-      immediate: true,
-      handler(newNote) {
-        if (newNote) {
-          this.editedNote = { ...newNote };
-        }
+  note: {
+    immediate: true,
+    handler(newNote) {
+      if (newNote) {
+        this.editedNote = { 
+          ...newNote,
+          tags: newNote.tags || []
+        };
       }
     }
-  },
+  }
+},
   methods: {
     async saveEdit() {
       try {
@@ -72,7 +97,31 @@ export default {
     },
     closeModal() {
       this.$emit('close');
+    },
+    addTag() {
+    if (this.newTag.trim() !== '') {
+      this.editedNote.tags.push(this.newTag.trim());
+      this.newTag = '';
+    }
+  },
+  removeTag(index) {
+    this.editedNote.tags.splice(index, 1);
+  },
+  async fetchTags() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/tags', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      this.existingTags = response.data;
+    } catch (error) {
+      console.error('Error fetching tags:', error);
     }
   }
+  },
+  mounted() {
+    this.fetchTags();
+  }
+
 };
 </script>

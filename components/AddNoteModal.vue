@@ -16,6 +16,18 @@
         
         <input v-model="newNote.title" placeholder="Title" class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white">
         <textarea v-model="newNote.content" placeholder="Content" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"></textarea>
+        <div class="mb-4">
+          <label class="block text-gray-700 dark:text-gray-300 mb-2">Tags</label>
+          <input v-model="newTag" @keyup.enter="addTag" placeholder="Add a tag and press Enter" class="w-full p-2 mb-2 border rounded dark:bg-gray-700 dark:text-white">
+          <div class="flex flex-wrap">
+            <span v-for="(tag, index) in newNote.tags" :key="index" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 mb-2">
+              {{ tag }}
+              <button @click="removeTag(index)" class="ml-1 text-white">
+                &times;
+              </button>
+            </span>
+          </div>
+        </div>
         <div class="mt-4 flex justify-end">
           <button @click="saveNote" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Save</button>
         </div>
@@ -30,25 +42,54 @@
     props: ['showModal'],
     data() {
       return {
+        existingTags: [],
         newNote: {
           title: '',
           content: '',
+          tags: [],
         },
+        newTag: '',
       };
     },
     methods: {
 
+      addTag() {
+        if (this.newTag.trim() !== '') {
+          this.newNote.tags.push(this.newTag.trim());
+          this.newTag = '';
+        }
+      }, 
+      removeTag(index) {
+        this.newNote.tags.splice(index, 1);
+      },
+      computed: {
+        tagSuggestions() {
+          return this.existingTags.filter(tag => 
+            tag.toLowerCase().includes(this.newTag.toLowerCase()) &&
+            !this.newNote.tags.includes(tag)
+          );
+        }
+      },
 
+      async mounted() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get('/api/tags', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          this.existingTags = response.data;
+        } catch (error) {
+          console.error('Error fetching tags:', error);
+        }
+      },
       async saveNote() {
         try {
           const token = localStorage.getItem('token');
-          console.log('Sending note:', this.newNote); // Debug log
           const response = await axios.post('/api/notes', this.newNote, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
-          console.log('Response:', response.data); // Debug log
           this.$emit('refresh-notes');
           this.$emit('close-modal');
           this.newNote = { title: '', content: '' };

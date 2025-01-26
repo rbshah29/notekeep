@@ -4,6 +4,16 @@
     <div @click="$emit('edit-note', note)" class="flex-grow">
       <h3 class="text-lg mb-2 font-bold text-stone-400 dark:text-stone-400 truncate">{{ note.title }}</h3>
       <hr class="border-black"/>
+      <div class="tags mt-2">
+        <span
+          v-for="tag in noteTags"
+          :key="tag"
+          class="inline-block bg-blue-100 text-blue-600 text-xs font-semibold px-2 py-1 rounded mr-2"
+        >
+          {{ tag }}
+        </span>
+      </div>
+      
       <pre class="mt-2 text-gray-700 dark:text-gray-300 overflow-hidden line-clamp-4 font-sans">{{ note.content }}</pre>
     </div>
     <button @click="deleteNote" class="text-red-600 px-4 py-2 rounded absolute bottom-2 right-2">
@@ -16,7 +26,21 @@
 import axios from 'axios';
 
 export default {
-  props: ['note'],
+    props: {
+      note: {
+        type: Object,
+        required: true,
+      },
+      uniqueTags: {
+        type: Array,
+        required: true,
+      },
+      noteTags: {
+        type: Array,
+        required: true,
+      },
+    },
+
   methods: {
     async deleteNote() {
       if (confirm('Are you sure you want to delete this note?')) {
