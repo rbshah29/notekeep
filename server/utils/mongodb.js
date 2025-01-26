@@ -42,7 +42,6 @@ export async function closeDatabaseConnection() {
   }
 }
 
-// server/utils/mongodb.js - add users collection
 export async function getUsersCollection() {
   const db = await connectToDatabase();
   return db.collection('users');

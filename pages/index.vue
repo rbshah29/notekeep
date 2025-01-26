@@ -6,9 +6,32 @@
       </div>
       <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-bold mx-auto">Notekeep</h1>
-        <button @click="logout" class="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-          Logout
-        </button>
+        <div>
+          <button @click="showDropdown = !showDropdown" class="absolute top-6 right-6 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div v-if="showDropdown" class="absolute right-0 mt-6 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
+            <div class="m-2">
+              <div class="user-info">
+                <h2 class="flex">
+                  <div>
+                    Hello,&nbsp;
+                  </div>  
+                  <div class="flex font-bold text-orange-300">
+                    {{ userName }}
+                  </div>
+                </h2>
+                <p class="text-sm text-gray-600">Member since: {{ formatDate(userCreatedAt) }}</p>
+              </div>
+                <button @click="logout" class="mt-3  w-full px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 bg-red-500 dark:hover:bg-red-700 flex items-center justify-center">
+                <div class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8m4-9l-4-4m4 4l-4 4m4-4H9"/></svg>
+                </div> 
+                </button>
+            </div>
+          </div>
+        </div>
+
       </div>
       <input
         v-model="searchQuery"
@@ -36,9 +59,9 @@
   
       <button
         @click="showModal = true"
-        class="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+        class="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-md shadow-lg hover:bg-blue-600 transition-colors"
       >
-        +
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="4"><rect width="36" height="36" x="6" y="6" rx="3"/><path stroke-linecap="round" d="M24 16v16m-8-8h16"/></g></svg>
       </button>
   
       <AddNoteModal
@@ -63,19 +86,24 @@
 
   import axios from 'axios';
   
+  
   export default {
     middleware: ['auth'],
     components: { NoteCard, AddNoteModal,  EditNoteModal },
     
     data() {
       return {
+        showDropdown: false,
         notes: [],
         showModal: false,
         showEditModal: false,
         selectedNote: null,
         searchQuery: '',
         loading: false,
-        error: null
+        error: null,
+        userName: '',
+        userEmail: '',
+        userCreatedAt: ''
       };
 
     },
@@ -97,6 +125,24 @@
         localStorage.removeItem('token');
         this.$router.push('/login');
       },
+      async fetchUserDetails() {
+          try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('/api/auth/user', {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            console.log('User details:', response.data);
+            this.userName = response.data.name;
+            this.userEmail = response.data.email;
+            this.userCreatedAt = response.data.createdAt;
+          } catch (error) {
+            console.error('Error fetching user details:', error);
+          }
+        },
+        formatDate(date) {
+          return new Date(date).toLocaleDateString();
+        },
+
       async fetchNotes() {
         this.loading = true;
         this.error = null;
@@ -132,6 +178,7 @@
 
 
     mounted() {
+      this.fetchUserDetails();
       this.fetchNotes();
     },
   };

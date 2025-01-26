@@ -7,6 +7,12 @@
         </div>
         <form @submit.prevent="handleSignup">
           <input
+            v-model="name"
+            type="text"
+            placeholder="Name"
+            class="w-full p-2 mb-4 border rounded"
+            required />  
+          <input
             v-model="email"
             type="email"
             placeholder="Email"
@@ -36,6 +42,7 @@
   export default {
     data() {
       return {
+        name: '',
         email: '',
         password: '',
         error: null
@@ -46,7 +53,7 @@
         try {
           await $fetch('/api/auth/signup', {
             method: 'POST',
-            body: { email: this.email, password: this.password }
+            body: { name: this.name, email: this.email, password: this.password }
           });
           this.$router.push('/login');
         } catch (error) {

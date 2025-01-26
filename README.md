@@ -1,6 +1,7 @@
 # Notepad Application
 
-This is a simple Notepad application built with Vue.js and Node.js, using MongoDB as the database. The application supports creating, reading, and deleting notes, with dark mode support.
+This is a simple Notepad application built with Vue.js and Node.js, using MongoDB as the database. The application supports creating, reading, and deleting notes, with dark mode support. It also includes proper authentication with login ID.
+
 
 ## Features
 
@@ -34,6 +35,7 @@ Create a `.env` file in the root directory and add your MongoDB connection strin
 
 ```env
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
+JWT_SECRETE=your_secrete_key
 ```
 
 ### 4. Run the application
