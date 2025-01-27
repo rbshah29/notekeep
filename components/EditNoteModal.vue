@@ -14,15 +14,18 @@
 
       <input 
         v-model="editedNote.title" 
+        :readonly="!canEdit"
         class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white text-xl font-bold"
       >
       <textarea 
         v-model="editedNote.content"
+        :readonly="!canEdit"
         class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white font-mono min-h-[200px]"
       ></textarea>
       <div class="mb-4">
         <label class="block text-gray-700 dark:text-gray-300 mb-2">Tags</label>
         <input 
+          :readonly="!canEdit"
           v-model="newTag" 
           @keyup.enter="addTag" 
           placeholder="Add a tag and press Enter" 
@@ -35,7 +38,7 @@
             class="bg-blue-500 text-white px-2 py-1 rounded mr-2 mb-2"
           >
             {{ tag }}
-            <button @click="removeTag(index)" class="ml-1 text-white">&times;</button>
+            <button v-if="canEdit" @click="removeTag(index)" class="ml-1 text-white">&times;</button>
           </span>
         </div>
       </div>
@@ -55,6 +58,7 @@ export default {
     show: Boolean,
     note: Object
   },
+
   data() {
     return {
       editedNote: {
@@ -66,19 +70,21 @@ export default {
       existingTags: []
     };
   },
+
   watch: {
-  note: {
-    immediate: true,
-    handler(newNote) {
-      if (newNote) {
-        this.editedNote = { 
-          ...newNote,
-          tags: newNote.tags || []
-        };
+    note: {
+      immediate: true,
+      handler(newNote) {
+        if (newNote) {
+          this.editedNote = { 
+            ...newNote,
+            tags: newNote.tags || []
+          };
+        }
       }
     }
-  }
-},
+  },
+
   methods: {
     async saveEdit() {
       try {

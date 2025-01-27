@@ -32,10 +32,29 @@ export default defineEventHandler(async (event) => {
     const userId = decoded.userId;
 
     if (method === 'GET') {
-      const notes = await collection.find({ userId }).toArray();
-      return notes;
+      // Get user's email from decoded token
+      const users = await db.collection('users');
+      const currentUser = await users.findOne({ _id: new ObjectId(userId) });
+      const userEmail = currentUser.email;
+    
+      const notes = await collection.find({
+        $or: [
+          { userId }, // Notes owned by user
+          { 'collaborators.email': userEmail } // Notes shared with user
+        ]
+      }).toArray();
+    
+      // Add permission level to each note
+      const notesWithPermissions = notes.map(note => ({
+        ...note,
+        userPermission: note.userId === userId ? 'owner' : 
+          note.collaborators.find(c => c.email === userEmail)?.permission
+      }));
+    
+      return notesWithPermissions;
     }
 
+    // server/api/notes.js
     if (method === 'POST') {
       const body = await readBody(event);
       const noteWithUser = {
@@ -43,7 +62,9 @@ export default defineEventHandler(async (event) => {
         content: body.content,
         tags: body.tags || [],
         userId: decoded.userId,
-        createdAt: new Date()
+        collaborators: [], // Array of { email, permission: 'view' | 'edit' }
+        createdAt: new Date(),
+        createdBy: decoded.userId // Keep track of original creator
       };
       const result = await collection.insertOne(noteWithUser);
       return {

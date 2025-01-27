@@ -2,12 +2,15 @@
 
 This is a simple Notepad application built with Vue.js and Node.js, using MongoDB as the database. The application supports creating, reading, and deleting notes, with dark mode support. It also includes proper authentication with login ID.
 
-
 ## Features
 
-- Create, read, and delete notes
-- Dark mode support
+- Create, read, update, and delete notes
+- Add tags to notes
+- Share notes with permissions for edit or view
 - Search notes
+- Dark mode support
+- Collaboration with email if the user is signed up
+- And many more
 
 ## Prerequisites
 
