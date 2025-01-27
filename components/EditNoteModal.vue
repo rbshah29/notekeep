@@ -33,7 +33,7 @@
         >
         <div class="flex flex-wrap">
           <span 
-            v-for="(tag, index) in editedNote.tags" 
+            v-for="(tag, index) in editedNote.tags"
             :key="index" 
             class="bg-blue-500 text-white px-2 py-1 rounded mr-2 mb-2"
           >
@@ -71,6 +71,29 @@ export default {
     };
   },
 
+  computed: {
+    isOwner() {
+      return this.note.userPermission === 'owner';
+    },
+    
+    canEdit() {
+      console.log(this.isOwner);
+      console.log(this.note.userPermission);
+      if (this.isOwner)
+      {
+        return true;
+      }
+      else if (this.note.userPermission === 'edit')
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  },
+
   watch: {
     note: {
       immediate: true,
@@ -87,6 +110,7 @@ export default {
 
   methods: {
     async saveEdit() {
+      console.log("this.editedNote");
       try {
         const token = localStorage.getItem('token');
         await axios.put(`/api/notes?id=${this.note._id}`, this.editedNote, {

@@ -78,15 +78,52 @@ export default defineEventHandler(async (event) => {
       const id = query.id;
       const body = await readBody(event);
       
-      const result = await collection.updateOne(
-        { _id: new ObjectId(id), userId },
-        { $set: {
-          title: body.title,
-          content: body.content,
-          tags: body.tags || []
-        }}
+      // Get the user's email from the users collection
+      const users = await db.collection('users');
+      const currentUser = await users.findOne({ _id: new ObjectId(decoded.userId) });
+      const userEmail = currentUser.email;
+    
+      // Find the note
+      const note = await collection.findOne({ _id: new ObjectId(id) });
+      if (!note) {
+        throw createError({
+          statusCode: 404,
+          message: 'Note not found'
+        });
+      }
+    
+      // Check permissions
+      const isOwner = note.userId === decoded.userId;
+      const collaborator = note.collaborators?.find(c => c.email === userEmail);
+      const canEdit = isOwner || collaborator?.permission === 'edit';
+    
+      if (!canEdit) {
+        throw createError({
+          statusCode: 403,
+          message: 'Not authorized to edit this note'
+        });
+      }
+      const updateResult = await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { 
+          $set: {
+            title: body.title,
+            content: body.content,
+            tags: body.tags || [],
+            updatedAt: new Date()
+          }
+        }
       );
-      return { success: result.modifiedCount === 1 };
+    
+      if (updateResult.modifiedCount === 0) {
+        throw createError({
+          statusCode: 500,
+          message: 'Failed to update note'
+        });
+      }
+    
+      const updatedNote = await collection.findOne({ _id: new ObjectId(id) });
+      return updatedNote;
     }
 
     if (method === 'DELETE') {

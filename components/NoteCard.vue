@@ -15,30 +15,22 @@
       
       <pre class="mt-2 text-gray-700 dark:text-gray-300 overflow-hidden line-clamp-4 font-sans">{{ note.content }}</pre>
     </div>
-    <div class="justify-between items-center mt-10">
-      <!-- <button @click="deleteNote" class="text-red-600 mt-36 px-4 py-2 rounded absolute bottom-2 right-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-      </button>
-      <button @click="showShareModal = true" class="text-blue-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-        </svg>
-      </button> -->
+    <div class="items-center mt-10">
   
       <div class="flex justify-between items-center absolute bottom-2 right-2">
-        <button v-if="isOwner" @click.stop="deleteNote" class="text-red-600 px-2">
+        <button v-if="istrueOwner" @click.stop="deleteNote" class="text-red-600 px-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"/>
           </svg>
         </button>
         
-        <button v-if="isOwner" @click.stop="showShareModal = true" class="text-blue-500 px-2">
+        <button v-if="istrueOwner" @click.stop="showShareModal = true" class="text-blue-500 px-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
           </svg>
         </button>
   
-        <span v-if="!isOwner" class="text-sm text-gray-500">
+        <span v-if="!istrueOwner" class="text-sm text-gray-500">
           ({{ note.userPermission }})
         </span>
       </div>
@@ -128,21 +120,18 @@ export default {
 
   },
   computed: {
-    isOwner() {
-      return this.note.userPermission === 'owner';
-    },
-    canEdit() {
-      return this.isOwner || this.note.userPermission === 'edit';
-    }
-  },
-
-  methods: {
-    handleNoteClick() {
-      if (this.canEdit) {
-        console.log("Edit note");
-        this.$emit('edit-note', this.note);
+    istrueOwner(){
+      if (this.note.userPermission === 'owner')
+      {
+        return true;
+      }
+      else
+      {
+        return false;
       }
     },
+  },
+  methods: {
     async deleteNote() {
       if (confirm('Are you sure you want to delete this note?')) {
         try {
