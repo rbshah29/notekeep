@@ -14,7 +14,7 @@
           </div>
         </div>
         
-        <input v-model="newNote.title" placeholder="Title" class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white">
+        <input v-model="newNote.title" placeholder="Title" class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white" required>
         <textarea v-model="newNote.content" placeholder="Content" class="w-full h-60 p-2 border rounded dark:bg-gray-700 dark:text-white"></textarea>
         <TagInput
           v-model="newNote.tags"
