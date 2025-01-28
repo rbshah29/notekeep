@@ -15,19 +15,11 @@
         </div>
         
         <input v-model="newNote.title" placeholder="Title" class="w-full p-2 mb-4 border rounded dark:bg-gray-700 dark:text-white">
-        <textarea v-model="newNote.content" placeholder="Content" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"></textarea>
-        <div class="mb-4">
-          <label class="block text-gray-700 dark:text-gray-300 mb-2">Tags</label>
-          <input v-model="newTag" @keyup.enter="addTag" placeholder="Add a tag and press Enter" class="w-full p-2 mb-2 border rounded dark:bg-gray-700 dark:text-white">
-          <div class="flex flex-wrap">
-            <span v-for="(tag, index) in newNote.tags" :key="index" class="bg-blue-500 text-white px-2 py-1 rounded mr-2 mb-2">
-              {{ tag }}
-              <button @click="removeTag(index)" class="ml-1 text-white">
-                &times;
-              </button>
-            </span>
-          </div>
-        </div>
+        <textarea v-model="newNote.content" placeholder="Content" class="w-full h-60 p-2 border rounded dark:bg-gray-700 dark:text-white"></textarea>
+        <TagInput
+          v-model="newNote.tags"
+          :existing-tags="existingTags"
+        />
         <div class="mt-4 flex justify-end">
           <button @click="saveNote" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Save</button>
         </div>
@@ -82,6 +74,18 @@
           console.error('Error fetching tags:', error);
         }
       },
+      async fetchTags() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get('/api/tags', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          this.existingTags = response.data;
+          console.log('Existing add note tags:', this.existingTags);
+        } catch (error) {
+          console.error('Error fetching tags:', error);
+        }
+      },
       async saveNote() {
         try {
           const token = localStorage.getItem('token');
@@ -100,11 +104,13 @@
         }
       },
 
-
       closeModal() {
         this.$emit('close-modal');
       },
     },
+    mounted() {
+      this.fetchTags();
+    }
   };
   </script>
   
