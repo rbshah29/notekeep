@@ -88,6 +88,10 @@
       },
       async saveNote() {
         try {
+            if (!this.newNote.title.trim()) {
+              alert('Title is required');
+              return;
+            }
           const token = localStorage.getItem('token');
           const response = await axios.post('/api/notes', this.newNote, {
             headers: {
